@@ -6,15 +6,11 @@ on:
     types:
       - completed
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - 'releases/*'
-      - 'features/*'
 
 jobs:
   qodana:
     runs-on: self-hosted
+    needs: build
     permissions:
       contents: write
       pull-requests: write
@@ -38,7 +34,7 @@ jobs:
         with:
           pr-mode: false
           push-fixes: pull-request
-          args: --apply-fixes
+          args: --apply-fixes --baseline,qodana.sarif.json
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
           QODANA_ENDPOINT: 'https://qodana.cloud'
