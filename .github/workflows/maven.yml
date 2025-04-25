@@ -57,3 +57,41 @@ jobs:
       with:
         name: jacoco-report
         path: .qodana/code-coverage/jacoco.xml
+
+  qodana:
+    runs-on: self-hosted
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      security-events: write  # ✅ Needed for SARIF upload
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Download JaCoCo report
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-report
+          path: .qodana/code-coverage
+
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2024.3
+        with:
+          pr-mode: false
+          push-fixes: pull-request
+          args: --apply-fixes
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+          QODANA_ENDPOINT: 'https://qodana.cloud'
+
+      - name: Upload SARIF results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+          category: Qodana
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
