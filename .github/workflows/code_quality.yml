@@ -1,12 +1,12 @@
 name: Qodana
+
 on:
-  workflow_dispatch:
-  pull_request:
-  push:
-    branches:
-      - main
-      - 'releases/*'
-      - 'features/*'
+  workflow_dispatch: # Pode ser acionado manualmente
+  workflow_run:
+    workflows:
+      - Java CI with Maven
+    types:
+      - completed
 jobs:
   qodana:
     runs-on: self-hosted
@@ -14,12 +14,34 @@ jobs:
       contents: write
       pull-requests: write
       checks: write
+      security-events: write  # ✅ Needed for SARIF upload
+
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
-          fetch-depth: 0  # a full history is required for pull request analysis
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Download JaCoCo report
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-report
+          path: .qodana/code-coverage
+
       - name: 'Qodana Scan'
-        uses: JetBrains/qodana-action@v2025.1
+        uses: JetBrains/qodana-action@v2024.3
+        with:
+          pr-mode: false
+          push-fixes: pull-request
+          args: --apply-fixes,--baseline,qodana.sarif.json
         env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }} # read the steps about it below
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+          QODANA_ENDPOINT: 'https://qodana.cloud'
+
+      - name: Upload SARIF results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+          category: Qodana
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
