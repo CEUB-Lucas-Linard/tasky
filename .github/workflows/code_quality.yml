@@ -33,17 +33,6 @@ jobs:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
           QODANA_ENDPOINT: 'https://qodana.cloud'
 
-      - name: Check GITHUB_TOKEN availability
-        run: |
-          if [ -z "$GITHUB_TOKEN" ]; then
-            echo "❌ GITHUB_TOKEN is not set!"
-            exit 1
-          else
-            echo "✅ GITHUB_TOKEN is set. Length: ${#GITHUB_TOKEN}"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload SARIF results to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:

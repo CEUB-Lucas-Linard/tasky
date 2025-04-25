@@ -1,4 +1,5 @@
 ![build badge](https://github.com/pedr0limpio/tasky/actions/workflows/maven.yml/badge.svg?event=push&branch=main)
+[![Qodana](https://github.com/CEUB-Lucas-Linard/tasky/actions/workflows/code_quality.yml/badge.svg)](https://github.com/CEUB-Lucas-Linard/tasky/actions/workflows/code_quality.yml)
 # Tasky - a simple todo tool
 
 This project is for educational purposes only and its code is intentionally incomplete. Just to complete and learn.
