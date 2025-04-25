@@ -52,8 +52,8 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Upload coverage result
+    - name: Upload JaCoCo report
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-result
-        path: ./qodana/
+        name: jacoco-report
+        path: .qodana/code-coverage/jacoco.xml
